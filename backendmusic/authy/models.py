@@ -46,9 +46,11 @@ class Profile(models.Model):
 	father = models.CharField(max_length=100,blank=True)
 	phone = PhoneNumberField(null=False, blank=False,default="")
 	bday=models.DateField(auto_now=False, auto_now_add=False,blank=True,default="2000-01-05")
-	proved = models.BooleanField(default=False)
+	is_proved = models.BooleanField(default=False)
 	admin = models.BooleanField(default=False)
+	city = models.CharField(max_length=50,default="Moskva")
 	tg = models.CharField(max_length=32,default="@bot")
+	email = models.EmailField(max_length = 254,default="")
 	def __str__(self) -> str:
 		return str(self.user)+"|"+str(self.id)
 	def create_user_profile(sender,instance,created,**kwargs):
@@ -60,3 +62,33 @@ class Profile(models.Model):
 	post_save.connect(create_user_profile,sender=User)
 	post_save.connect(save_user_profile,sender=User)
 	
+class Event(models.Model):
+	BACKEND ='BACKEND'
+	UI ='UI/UX'
+	Product_manager ='Product manager'
+	Project_manager ='Project manager'
+	Front ='Frontend'
+	Fullstack ='Fullstack'
+	Analyst = 'Analyst'
+	TAGS_CHOICES = [
+		(BACKEND,'BACKEND'),
+		(UI,'UI'),
+		(Product_manager,'Product '),
+		(Project_manager,'Project '),
+		(Front,'Frontend'),
+		(Fullstack,'Fullstack'),
+		(Analyst,'Analyst'),
+	]
+	
+	title = models.CharField(max_length=100)
+	description = models.CharField(max_length=700)
+	image = models.ImageField(upload_to="media/avatars",default="../media/avatars/123.png",blank=True)
+	tags=  models.CharField(max_length=30,choices=TAGS_CHOICES,blank=True,default=Fullstack)
+	date = models.DateField(auto_now=False, auto_now_add=False,default=None)
+	count = models.PositiveIntegerField(default=0)
+	is_finished = models.BooleanField(default=False)
+	def __str__(self) -> str:
+		return str(self.title)
+class InEvent(models.Model):
+	participant = models.ForeignKey(User,on_delete=models.CASCADE)
+	event = models.ForeignKey(Event,on_delete=models.CASCADE)

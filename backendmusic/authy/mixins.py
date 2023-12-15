@@ -4,7 +4,7 @@ class AdminPermissionMixin():
 	permission_classes= [permissions.AllowAny]
 	def has_permission(self,request,view):
 		user = request.user
-		if user.profile.admin == True:
+		if user.profile.admin == True or user.is_admin:
 			perms_map = {
 			'GET': ['%(app_label)s.view_%(model_name)s'],
 			'OPTIONS': [],
@@ -18,7 +18,7 @@ class TakePartMixin():
 	
 	def has_permission(self,request):
 		user = request.user
-		if user.profile.proved ==True:
+		if user.profile.proved ==True :
 			pass
 		else:
 			return False

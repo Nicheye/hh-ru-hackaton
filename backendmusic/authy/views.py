@@ -1,18 +1,27 @@
 from rest_framework.views import APIView
-from .serializers import UserSerializer,ProfileSerializer
+from .serializers import UserSerializer,ProfileSerializer,EventSerializer
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from .mixins import AdminPermissionMixin
 from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
-from .models import User,Profile
+from .models import User,Profile,InEvent
+from .models import Event as Event1
 from rest_framework import permissions
+import datetime
+from django.utils import timezone
 from django.core.mail import send_mail
 class HomeView(APIView):
    permission_classes = (IsAuthenticated, )
    def get(self, request):
        user = UserSerializer(request.user).data
+       if request.user.profile.role is not None and (request.user.profile.sex is not None) and (request.user.profile.name is not None) and (request.user.profile.second is not None) and (request.user.profile.phone !=""):
+          request.user.profile.is_proved = True
+          request.user.profile.save()
+          
        return Response({"user":user})
+   
    
 class LogoutView(APIView):
      permission_classes = (IsAuthenticated,)
@@ -39,22 +48,33 @@ class RegisterView(APIView):
                     [email],fail_silently=False
 
                )
+               from rest_framework_simplejwt import views as jwt_views
+               # jwt_views.TokenObtainPairView.perform_authentication({"username":serializer.data['username'],"password":serializer.data['password']})
                return Response(serializer.data)
      
 class UsersView(APIView):
-     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+     permission_classes = [permissions.IsAuthenticated]
+     
      def get(self,request,*args, **kwargs):
-          pk = kwargs.get("pk", None)
-          if not pk:
-               users = User.objects.all()
-               serializer = UserSerializer(users,many=True).data
-               return Response({"users":serializer})
+          if request.user.profile.is_proved ==True:
+               pk = kwargs.get("pk", None)
+               if not pk:
+                    users = User.objects.all()
+                    serializer = UserSerializer(users,many=True).data
+                    for user in users:
+                         if user.profile.email =="":
+                              user.profile.email =user.email
+                              user.save()
+                    
+                    return Response({"users":serializer})
+                    
+               else:
+                    user = User.objects.get(id=pk)
+                    profik = Profile.objects.get(user=user)
+                    serializer = ProfileSerializer(profik).data
+                    return Response({"user": serializer})
           else:
-               user = User.objects.get(id=pk)
-               profik = Profile.objects.get(user=user)
-               serializer = ProfileSerializer(profik).data
-               return Response({"user": serializer})
-          
+               return Response({"message":"you ve not enough rights for this"})
      def put(self, request, *args, **kwargs):
         
         pk = kwargs.get("pk", None)
@@ -78,3 +98,49 @@ class UsersView(APIView):
         else:
              return Response({"message": "it aint your profile u cant change it"})
         
+class EmailSender(APIView,AdminPermissionMixin):
+     def get(self,request):
+          pass
+     def post(self,request):
+          pass
+
+class EventApi(APIView):
+     permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+     def get(self,request):
+          events =Event1.objects.filter(is_finished=False).all()
+          for event in events:
+               import datetime
+               import pytz
+               utc=pytz.UTC
+               
+               if event.date>timezone.now():
+                    pass
+               else:
+                    event.is_finished=True
+                    event.save()
+          serializer = EventSerializer(events,many=True).data
+          return Response({"events":serializer})
+
+
+     def post(self,request):
+          if request.user.is_superuser or request.user.profile.admin ==True:
+               serializer = EventSerializer(data=request.data)
+               serializer.is_valid(raise_exception=True)
+               serializer.save()
+               return Response(serializer.data)
+          else:
+               return Response({"message":"u r not admin"})
+class EventRegister(APIView):
+     permission_classes = [permissions.IsAuthenticated]
+     def get(self, request, *args, **kwargs):
+        pk = kwargs.get("pk", None)
+        if request.user.profile.is_proved ==True:
+             event = Event1.objects.get(id=pk)
+             new_event = InEvent()
+             new_event.participant = request.user
+             new_event.event = event
+             new_event.save()
+             return Response({"message":"you have been registered"})
+             
+        else:
+             return Response({"message":"u r not proved"})

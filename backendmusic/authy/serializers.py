@@ -1,26 +1,45 @@
 from rest_framework import serializers
-from .models import User,Profile
+from .models import User,Profile,Event
+from django.utils import timezone
 class UserSerializer(serializers.ModelSerializer):
 	ava = serializers.SerializerMethodField()
-	bio = serializers.SerializerMethodField()
 	role = serializers.SerializerMethodField()
 	sex = serializers.SerializerMethodField()
-	
+	name=serializers.SerializerMethodField()
+	second=serializers.SerializerMethodField()
+	father=serializers.SerializerMethodField()
+	age = serializers.SerializerMethodField()
+	city = serializers.SerializerMethodField()
+	phone = serializers.SerializerMethodField()
 	class Meta:
 		model = User
-		fields =['id','username','password','email','ava','bio','role','sex',]
+		fields =['id','username','password','name','second','father','city','email','ava','role','sex','phone','age']
 		extra_kwargs = {
 			'password':{'write_only':True}
 		}
 	def get_ava(self,obj):
 		return "http://127.0.0.1:8000"+obj.profile.avatar.url
-	def get_bio(self,obj):
-		return obj.profile.bio
 	def get_role(self,obj):
 		return obj.profile.role
+	def get_phone(self,obj):
+		return str(obj.profile.phone)
 	def get_sex(self,obj):
 		return obj.profile.sex
-	
+	def get_name(self,obj):
+		return obj.profile.name
+	def get_age(self,obj):
+		from datetime import datetime
+		from dateutil import relativedelta
+		delte=relativedelta.relativedelta(datetime.now(),obj.profile.bday)
+		return str(delte.years)
+	def get_city(self,obj):
+		return obj.profile.city
+	def get_second(self,obj):
+		return obj.profile.second
+
+	def get_father(self,obj):
+		return obj.profile.father
+
 	def create(self,validated_data):
 		password = validated_data.pop('password',None)
 		instance =  self.Meta.model(**validated_data)
@@ -49,3 +68,14 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 			instance.save()
 			return instance
+
+class EventSerializer(serializers.ModelSerializer):
+	img = serializers.SerializerMethodField()
+	class Meta:
+		model = Event
+		fields =('title','description','img','tags','date','count')
+	def get_img(self,obj):
+		return "http://127.0.0.1:8000"+obj.image.url
+
+	
+	
