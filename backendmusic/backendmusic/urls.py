@@ -14,7 +14,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from django.contrib import admin
+
 from django.urls import path
 from django.contrib import admin
 from django.urls import path, include
@@ -29,8 +29,8 @@ urlpatterns = [
      path('token/refresh/', 
           jwt_views.TokenRefreshView.as_view(), 
           name ='token_refresh'),
-	path('',include("authentification.urls")),
-	path('games/',include("games.urls")),
+	path('',include("authy.urls")),
+	
 	
     
 ]
