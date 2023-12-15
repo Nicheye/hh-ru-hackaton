@@ -6,5 +6,6 @@ urlpatterns = [
       path('home/',HomeView.as_view(), name ='home'),
 	path('logout/', LogoutView.as_view(), name ='logout'),
       path('register/',RegisterView.as_view()),
-	path('profile',ProfileView.as_view())
+	path('users/',UsersView.as_view()),
+	path('users/<int:pk>/', UsersView.as_view()),
 ]

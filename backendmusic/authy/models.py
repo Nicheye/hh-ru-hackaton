@@ -11,6 +11,7 @@ class User(AbstractUser):
 	REQUIRED_FIELDS = []
 	def profile(self):
 		profile = Profile.objects.get(user=self)
+	
 
 class Profile(models.Model):
 	BACKEND ='BACKEND'
@@ -33,10 +34,10 @@ class Profile(models.Model):
 	FEMELE='FEMALE'
 	SEX_CHOICES = [
 		(MALE,'MALE'),
-		(FEMELE,'FEMLE'),
+		(FEMELE,'FEMELE'),
 	]
 	user = models.OneToOneField(User,on_delete=models.CASCADE)
-	avatar = models.ImageField(upload_to="avatars")
+	avatar = models.ImageField(upload_to="media/avatars",default="../media/avatars/123.png",blank=True)
 	bio = models.CharField(max_length=1000,blank=True)
 	role = models.CharField(max_length=16,choices=ROLE_CHOICES,default=Analyst)
 	sex = models.CharField(max_length=16,choices=SEX_CHOICES,default=FEMELE)
@@ -47,7 +48,9 @@ class Profile(models.Model):
 	bday=models.DateField(auto_now=False, auto_now_add=False,blank=True,default="2000-01-05")
 	proved = models.BooleanField(default=False)
 	admin = models.BooleanField(default=False)
-
+	tg = models.CharField(max_length=32,default="@bot")
+	def __str__(self) -> str:
+		return str(self.user)+"|"+str(self.id)
 	def create_user_profile(sender,instance,created,**kwargs):
 		if created:
 			Profile.objects.create(user=instance)
