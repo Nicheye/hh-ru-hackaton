@@ -11,9 +11,10 @@ class UserSerializer(serializers.ModelSerializer):
 	age = serializers.SerializerMethodField()
 	city = serializers.SerializerMethodField()
 	phone = serializers.SerializerMethodField()
+	events_count = serializers.SerializerMethodField()
 	class Meta:
 		model = User
-		fields =['id','username','password','name','second','father','city','email','ava','role','sex','phone','age']
+		fields =['id','username','password','email','name','second','father','city','ava','role','sex','phone','age','events_count']
 		extra_kwargs = {
 			'password':{'write_only':True}
 		}
@@ -27,6 +28,8 @@ class UserSerializer(serializers.ModelSerializer):
 		return obj.profile.sex
 	def get_name(self,obj):
 		return obj.profile.name
+	def get_events_count(self,obj):
+		return obj.profile.events_count
 	def get_age(self,obj):
 		from datetime import datetime
 		from dateutil import relativedelta

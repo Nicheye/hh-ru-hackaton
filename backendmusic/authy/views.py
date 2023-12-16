@@ -8,6 +8,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.conf import settings
 from .models import User,Profile,InEvent
 from .models import Event as Event1
+from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 import datetime
 from django.utils import timezone
@@ -108,16 +109,28 @@ class EventApi(APIView):
      permission_classes = [permissions.IsAuthenticatedOrReadOnly]
      def get(self,request):
           events =Event1.objects.filter(is_finished=False).all()
+          
+
           for event in events:
-               import datetime
+               from datetime import datetime, date
                import pytz
-               utc=pytz.UTC
-               
-               if event.date>timezone.now():
+               dt = datetime.now()
+               if event.date>datetime.date(dt):
                     pass
                else:
                     event.is_finished=True
                     event.save()
+          if request.user.is_authenticated:
+               try:
+                    myevents = InEvent.objects.filter(user=request.user)
+                    from random import randint
+                    for myevent in myevents:
+                         if myevent.event.is_finished ==True:
+                              myevent.place = randint(1,int(myevent.event.count))
+                              myevent.save()
+               
+               except:
+                    pass
           serializer = EventSerializer(events,many=True).data
           return Response({"events":serializer})
 
@@ -134,13 +147,23 @@ class EventRegister(APIView):
      permission_classes = [permissions.IsAuthenticated]
      def get(self, request, *args, **kwargs):
         pk = kwargs.get("pk", None)
+        
         if request.user.profile.is_proved ==True:
              event = Event1.objects.get(id=pk)
-             new_event = InEvent()
-             new_event.participant = request.user
-             new_event.event = event
-             new_event.save()
-             return Response({"message":"you have been registered"})
+             
+             try:
+                  ain = InEvent.objects.get(participant=request.user,event=event)
+                  return Response({"message":"you are in"})
+             except:
+               new_event = InEvent()
+               event.count +=1
+               new_event.participant = request.user
+               new_event.event = event
+               new_event.save()
+               request.user.profile.events_count+=1
+               request.user.profile.save()
+               event.save()
+               return Response({"message":"you have been registered"})
              
         else:
              return Response({"message":"u r not proved"})

@@ -61,7 +61,8 @@ class Profile(models.Model):
 	
 	post_save.connect(create_user_profile,sender=User)
 	post_save.connect(save_user_profile,sender=User)
-	
+	events_count = models.PositiveIntegerField(default=0)
+	prizes_count = models.PositiveIntegerField(default=0)
 class Event(models.Model):
 	BACKEND ='BACKEND'
 	UI ='UI/UX'
@@ -79,6 +80,14 @@ class Event(models.Model):
 		(Fullstack,'Fullstack'),
 		(Analyst,'Analyst'),
 	]
+	Hackaton ='Hackaton'
+	Meetup ='Meetup'
+	
+	EVENT_TYPE_CHOICES = [
+		(Hackaton,'Hackaton'),
+		(Meetup,'Meetup'),
+		
+	]
 	
 	title = models.CharField(max_length=100)
 	description = models.CharField(max_length=700)
@@ -87,8 +96,12 @@ class Event(models.Model):
 	date = models.DateField(auto_now=False, auto_now_add=False,default=None)
 	count = models.PositiveIntegerField(default=0)
 	is_finished = models.BooleanField(default=False)
+	event_type = models.CharField(max_length=12,choices=EVENT_TYPE_CHOICES,default="123")
 	def __str__(self) -> str:
 		return str(self.title)
 class InEvent(models.Model):
+	place = models.PositiveIntegerField(default=0)
 	participant = models.ForeignKey(User,on_delete=models.CASCADE)
 	event = models.ForeignKey(Event,on_delete=models.CASCADE)
+	def __str__(self) -> str:
+		return str(self.participant) + " | "+str(self.event)
