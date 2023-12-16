@@ -225,3 +225,12 @@ class EmailSender(APIView,AdminPermissionMixin):
                )
                return Response({"message":request.data})
 
+
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import generics
+class FilterApi(generics.ListAPIView):
+     
+     filter_backends=(DjangoFilterBackend,)
+     serializer_class = ProfileSerializer
+     queryset = Profile.objects.all()
+     filterset_fields = ['sex', 'city','role','bday']

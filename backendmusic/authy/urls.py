@@ -13,5 +13,6 @@ urlpatterns = [
 	path('event/<int:pk>/register',EventRegister.as_view()),#рега на ивент конкретный
 	path('emailsend/',EmailSender.as_view()),#для админа рассылка по имейоу
 	path('emailsend/<slug:pk>/',EmailSender.as_view()),
+	path('filtering',FilterApi.as_view())
 	
 ]

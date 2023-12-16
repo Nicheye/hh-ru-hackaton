@@ -55,6 +55,7 @@ class Profile(models.Model):
 	phone = PhoneNumberField(null=False, blank=False,default="")
 	bday=models.DateField(auto_now=False, auto_now_add=False,blank=True,default="2000-01-05")
 	is_proved = models.BooleanField(default=False)
+	
 	admin = models.BooleanField(default=False)
 	grade = models.CharField(max_length=10,choices=GRAD_CHOICES,default=Junior)
 	city = models.CharField(max_length=50,default="Moskva")

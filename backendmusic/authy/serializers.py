@@ -58,10 +58,16 @@ class UserSerializer(serializers.ModelSerializer):
 		return instance
 	
 class ProfileSerializer(serializers.ModelSerializer):
+	age = serializers.SerializerMethodField()
+
 	class Meta:
 		model = Profile
-		fields =('avatar','bio','role','sex','name','second','father','phone','bday')
-		
+		fields =('avatar','bio','role','sex','name','second','father','phone','bday','age')
+	def get_age(self,obj):
+		from datetime import datetime
+		from dateutil import relativedelta
+		delte=relativedelta.relativedelta(datetime.now(),obj.bday)
+		return int(delte.years)
 	def update(self, instance, validated_data):
 			
 			instance.avatar = validated_data.get("avatar", instance.avatar)
