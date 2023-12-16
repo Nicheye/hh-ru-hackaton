@@ -72,7 +72,7 @@ class RegisterView(APIView):
                return Response(serializer.data)
      
 class UsersView(APIView):
-     # permission_classes = [permissions.IsAuthenticated]
+     permission_classes = [permissions.IsAuthenticated]
      
      def get(self,request,*args, **kwargs):
           if request.user.profile.is_proved ==True:
@@ -81,14 +81,12 @@ class UsersView(APIView):
                     users = User.objects.all()
                     serializer = UserSerializer(users,many=True).data
                     check(request)
-                    
-                         
-                    
                     return Response({"users":serializer})
                     
                else:
                     user = User.objects.get(id=pk)
                     profik = Profile.objects.get(user=user)
+
                     serializer = UserSerializer(user).data
                     return Response({"user": serializer})
           else:

@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User,Profile,Event
 from django.utils import timezone
+from .models import InEvent
 class UserSerializer(serializers.ModelSerializer):
 	ava = serializers.SerializerMethodField()
 	role = serializers.SerializerMethodField()
@@ -83,6 +84,19 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 			instance.save()
 			return instance
+	
+class UserDataSeriailizer(serializers.ModelSerializer):
+	
+	wins = serializers.SerializerMethodField()
+	class Meta:
+		model = Profile
+		fields =('avatar','bio','role','sex','name','second','father','phone','bday','age','city','wins','events_count')
+	
+	def get_wins(self,obj):
+		obj.prizes_count =InEvent.objects.filter(participant=obj,place=1).count()
+		obj.save()
+		return InEvent.objects.filter(participant=obj,place=1).count
+
 from .models import EventTag
 class EventSerializer(serializers.ModelSerializer):
 	img = serializers.SerializerMethodField()
