@@ -62,7 +62,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Profile
-		fields =('avatar','bio','role','sex','name','second','father','phone','bday','age')
+		fields =('avatar','bio','role','sex','name','second','father','phone','bday','age','city')
 	def get_age(self,obj):
 		from datetime import datetime
 		from dateutil import relativedelta
@@ -83,14 +83,23 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 			instance.save()
 			return instance
-
+from .models import EventTag
 class EventSerializer(serializers.ModelSerializer):
 	img = serializers.SerializerMethodField()
+	tags= serializers.SerializerMethodField()
 	class Meta:
 		model = Event
-		fields =('title','description','img','tags','date','count','views_count')
+		fields =('title','description','img','tags','date','count','views_count','tags')
 	def get_img(self,obj):
 		return "http://127.0.0.1:8000"+obj.image.url
+	def get_tags(self,obj):
+		a = EventTag.objects.filter(event=obj)
+		tags=[]
+		for opium in a:
+			tags.append(opium.tags)
+		return tags
+
+
 
 	
 	

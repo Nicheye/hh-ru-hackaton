@@ -55,8 +55,10 @@ class Profile(models.Model):
 	phone = PhoneNumberField(null=False, blank=False,default="")
 	bday=models.DateField(auto_now=False, auto_now_add=False,blank=True,default="2000-01-05")
 	is_proved = models.BooleanField(default=False)
+	age = models.PositiveIntegerField(default=0)
 	
 	admin = models.BooleanField(default=False)
+	
 	grade = models.CharField(max_length=10,choices=GRAD_CHOICES,default=Junior)
 	city = models.CharField(max_length=50,default="Moskva")
 	tg = models.CharField(max_length=32,default="@bot")
@@ -103,7 +105,7 @@ class Event(models.Model):
 	title = models.CharField(max_length=100)
 	description = models.CharField(max_length=700)
 	image = models.ImageField(upload_to="media/avatars",default="../media/avatars/123.png",blank=True)
-	tags=  models.CharField(max_length=30,choices=TAGS_CHOICES,blank=True,default=Fullstack)
+	
 	date = models.DateField(auto_now=False, auto_now_add=False,default=None)
 	count = models.PositiveIntegerField(default=0)
 	is_finished = models.BooleanField(default=False)
@@ -111,9 +113,47 @@ class Event(models.Model):
 	event_type = models.CharField(max_length=12,choices=EVENT_TYPE_CHOICES,default="123")
 	def __str__(self) -> str:
 		return str(self.title)
+class EventTag(models.Model):
+	BACKEND ='BACKEND'
+	UI ='UI/UX'
+	Product_manager ='Product manager'
+	Project_manager ='Project manager'
+	Front ='Frontend'
+	Fullstack ='Fullstack'
+	Analyst = 'Analyst'
+	TAGS_CHOICES = [
+		(BACKEND,'BACKEND'),
+		(UI,'UI'),
+		(Product_manager,'Product '),
+		(Project_manager,'Project '),
+		(Front,'Frontend'),
+		(Fullstack,'Fullstack'),
+		(Analyst,'Analyst'),
+	]
+	event = models.ForeignKey(Event,on_delete=models.CASCADE)
+	tags=  models.CharField(max_length=30,choices=TAGS_CHOICES,blank=True,default=Fullstack)
+	def __str__(self) -> str:
+		return str(self.tags + "  "+ self.event.title)
 class InEvent(models.Model):
 	place = models.PositiveIntegerField(default=0)
 	participant = models.ForeignKey(User,on_delete=models.CASCADE)
 	event = models.ForeignKey(Event,on_delete=models.CASCADE)
 	def __str__(self) -> str:
 		return str(self.participant) + " | "+str(self.event)
+class EventReact(models.Model):
+	Good = 'Good'
+	Bad='Bad'
+	REACT_CHOICES = [
+		(Good,'Good'),
+		(Bad,'Bad'),
+	]
+	event = models.ForeignKey(Event,on_delete=models.CASCADE)
+	react = models.CharField(max_length=5,choices=REACT_CHOICES,default=Good)
+	message =models.CharField(max_length=500)
+
+class Redirection(models.Model):
+	habrcounter = models.PositiveIntegerField(default=0)
+	ytcounter = models.PositiveIntegerField(default=0)
+	tgcounter = models.PositiveIntegerField(default=0)
+	vkcounter = models.PositiveIntegerField(default=0)
+	foreign = models.PositiveIntegerField(default=0)

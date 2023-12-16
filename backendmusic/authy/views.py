@@ -12,7 +12,22 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 import datetime
 from django.utils import timezone
+from .filters import ProfileFilter
 from django.core.mail import send_mail
+from .models import Redirection
+def check(request):
+     user = request.user
+     if user.is_authenticated:
+          if user.profile.email =="":
+               user.profile.email =user.email
+               user.save()
+          
+          from datetime import datetime
+          from dateutil import relativedelta
+          d = relativedelta.relativedelta(datetime.now(),user.profile.bday)
+          user.profile.age = d.years
+          user.profile.save()
+
 class HomeView(APIView):
    permission_classes = (IsAuthenticated, )
    def get(self, request):
@@ -62,10 +77,9 @@ class UsersView(APIView):
                if not pk:
                     users = User.objects.all()
                     serializer = UserSerializer(users,many=True).data
-                    for user in users:
-                         if user.profile.email =="":
-                              user.profile.email =user.email
-                              user.save()
+                    check(request)
+                    
+                         
                     
                     return Response({"users":serializer})
                     
@@ -78,7 +92,7 @@ class UsersView(APIView):
                return Response({"message":"you ve not enough rights for this"})
      
      def put(self, request, *args, **kwargs):
-        
+        check(request)
         pk = kwargs.get("pk", None)
         if request.user.id==pk:
           if not pk:
@@ -105,7 +119,33 @@ class UsersView(APIView):
 class EventApi(APIView):
      permission_classes = [permissions.IsAuthenticatedOrReadOnly]
      def get(self,request,*args,**kwargs):
+          check(request)
           pk = kwargs.get("pk", None)
+          utm = kwargs.get("utm", None)
+
+          if utm:
+               
+               utm = str(utm).strip()
+               print(utm)
+               r = Redirection.objects.first()
+               if utm =="vk":
+                    r.vkcounter+=1
+                    r.save()
+               if utm =="habr":
+                    r.habrcounter+=1
+                    r.save()
+               if utm =="tg":
+                    r.tgcounter+=1
+                    r.save()
+               if utm =="yt":
+                    r.ytcounter+=1
+                    r.save()
+               if (utm != "vk") and (utm != "tg") and (utm != "yt") and (utm != "habr"):
+                    r.foreign+=1
+                   
+                    r.save()
+                    
+
           if pk:
                event = get_object_or_404(Event1,id=pk)
                event.views_count+=1
@@ -142,6 +182,7 @@ class EventApi(APIView):
 
 
      def post(self,request):
+          check(request)
           if request.user.is_superuser or request.user.profile.admin ==True:
                serializer = EventSerializer(data=request.data)
                serializer.is_valid(raise_exception=True)
@@ -150,8 +191,10 @@ class EventApi(APIView):
           else:
                return Response({"message":"u r not admin"})
 class EventRegister(APIView):
+     
      permission_classes = [permissions.IsAuthenticated]
      def get(self, request, *args, **kwargs):
+        check(request)
         pk = kwargs.get("pk", None)
         
         if request.user.profile.is_proved ==True:
@@ -177,9 +220,11 @@ class EventRegister(APIView):
 class EmailSender(APIView,AdminPermissionMixin):
      permission_classes = [IsAuthenticated]
      def get(self,request):
+          check(request)
           pass
      
      def post(self,request,*args,**kwargs):
+          check(request)
           pk = kwargs.get("pk", None)
           if pk:
                if pk=="all":
@@ -232,5 +277,8 @@ class FilterApi(generics.ListAPIView):
      
      filter_backends=(DjangoFilterBackend,)
      serializer_class = ProfileSerializer
-     queryset = Profile.objects.all()
-     filterset_fields = ['sex', 'city','role','bday']
+     filterset_class=ProfileFilter
+     def get_queryset(self):
+          queryset = Profile.objects.all()
+     
+     

@@ -7,7 +7,6 @@ class CharFilterInFilter(filters.BaseInFilter,filters.CharFilter):
 class ProfileFilter(filters.FilterSet):
 	#delte=relativedelta.relativedelta(datetime.now(),obj.profile.bday)
 	age = filters.RangeFilter()
-	sex = CharFilterInFilter(field_name='sex',lookup_expr='in')
 	class Meta:
 		model =Profile
-		fields=['sex','city','role','bday']
+		fields=['sex', 'city','role','age']
