@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
 # Create your models here.
+from faker import Faker
 from phonenumber_field.modelfields import PhoneNumberField
 class User(AbstractUser):
 	username = models.CharField(max_length=255,unique=True)
@@ -17,7 +18,7 @@ class Profile(models.Model):
 	BACKEND ='BACKEND'
 	UI ='UI/UX'
 	Product_manager ='Product manager'
-	Project_manager ='Project manager'
+	
 	Front ='Frontend'
 	Fullstack ='Fullstack'
 	Analyst = 'Analyst'
@@ -25,7 +26,7 @@ class Profile(models.Model):
 		(BACKEND,'BACKEND'),
 		(UI,'UI'),
 		(Product_manager,'Product manager'),
-		(Project_manager,'Project manager'),
+		
 		(Front,'Frontend'),
 		(Fullstack,'Fullstack'),
 		(Analyst,'Analyst'),
@@ -105,7 +106,8 @@ class Event(models.Model):
 	title = models.CharField(max_length=100)
 	description = models.CharField(max_length=700)
 	image = models.ImageField(upload_to="media/avatars",default="../media/avatars/123.png",blank=True)
-	
+	faker =Faker()
+	date_start =models.DateField(auto_now=False, auto_now_add=False,default=faker.date_this_month())
 	date = models.DateField(auto_now=False, auto_now_add=False,default=None)
 	count = models.PositiveIntegerField(default=0)
 	is_finished = models.BooleanField(default=False)
@@ -117,7 +119,7 @@ class EventTag(models.Model):
 	BACKEND ='BACKEND'
 	UI ='UI/UX'
 	Product_manager ='Product manager'
-	Project_manager ='Project manager'
+	
 	Front ='Frontend'
 	Fullstack ='Fullstack'
 	Analyst = 'Analyst'
@@ -125,7 +127,7 @@ class EventTag(models.Model):
 		(BACKEND,'BACKEND'),
 		(UI,'UI'),
 		(Product_manager,'Product '),
-		(Project_manager,'Project '),
+		
 		(Front,'Frontend'),
 		(Fullstack,'Fullstack'),
 		(Analyst,'Analyst'),
@@ -147,9 +149,11 @@ class EventReact(models.Model):
 		(Good,'Good'),
 		(Bad,'Bad'),
 	]
+	faker =Faker()
 	event = models.ForeignKey(Event,on_delete=models.CASCADE)
 	react = models.CharField(max_length=5,choices=REACT_CHOICES,default=Good)
 	message =models.CharField(max_length=500)
+	date = models.DateField(auto_now=False, auto_now_add=False,default=faker.date_this_month())
 
 class Redirection(models.Model):
 	habrcounter = models.PositiveIntegerField(default=0)

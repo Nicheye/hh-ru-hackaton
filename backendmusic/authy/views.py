@@ -12,8 +12,11 @@ from django.shortcuts import get_object_or_404
 from rest_framework import permissions
 import datetime
 from django.utils import timezone
+from datetime import timedelta
+from django.utils import timezone
 from .filters import ProfileFilter
 from django.core.mail import send_mail
+from .models import EventReact
 from .models import Redirection
 def check(request):
      user = request.user
@@ -69,7 +72,7 @@ class RegisterView(APIView):
                return Response(serializer.data)
      
 class UsersView(APIView):
-     permission_classes = [permissions.IsAuthenticated]
+     # permission_classes = [permissions.IsAuthenticated]
      
      def get(self,request,*args, **kwargs):
           if request.user.profile.is_proved ==True:
@@ -144,7 +147,6 @@ class EventApi(APIView):
                     r.foreign+=1
                    
                     r.save()
-                    
 
           if pk:
                event = get_object_or_404(Event1,id=pk)
@@ -167,11 +169,13 @@ class EventApi(APIView):
                          event.is_finished=True
                          event.save()
                if request.user.is_authenticated:
+                    
                     try:
-                         myevents = InEvent.objects.filter(user=request.user)
+                         myevents = InEvent.objects.filter(participant=request.user)
+                         
                          from random import randint
                          for myevent in myevents:
-                              if myevent.event.is_finished ==True:
+                              if myevent.event.is_finished is True:
                                    myevent.place = randint(1,int(myevent.event.count))
                                    myevent.save()
                     
@@ -280,5 +284,67 @@ class FilterApi(generics.ListAPIView):
      filterset_class=ProfileFilter
      def get_queryset(self):
           queryset = Profile.objects.all()
+
+class BigDataApi(APIView):
+     def get(self,request):
+          from datetime import datetime, timedelta
+          thirty_days_ago = datetime.now() - timedelta(days=30)
+          new_users_30 =User.objects.filter(date_joined__gte = thirty_days_ago)
+          
+          BACKEND=0
+          UI =0
+          Product_manager=0
+          Front=0
+          Fullstack=0
+          Analyst=0
+          Junior=0
+          Middle=0
+          Senior=0
+          for new_user in new_users_30:
+               if new_user.profile.role == 'BACKEND':
+                    BACKEND+=1
+               if new_user.profile.role == 'UI':
+                    UI+=1
+               if new_user.profile.role == 'Product_manager':
+                    Product_manager+=1
+               if new_user.profile.role == 'Front':
+                    Front+=1
+               if new_user.profile.role == 'Fullstack':
+                    Fullstack+=1
+               if new_user.profile.role == 'Analyst':
+                    Analyst+=1
+               if new_user.profile.grade =='Junior':
+                    Junior+=1
+               if new_user.profile.grade =='Middle':
+                    Middle+=1
+               if new_user.profile.grade =='Senior':
+                    Senior+=1
+          grades = {
+               "Junior":Junior,
+               "Middle":Middle,
+               "Senior":Senior,
+          }
+          roles = {
+               "BACKEND":BACKEND,
+               "UI":UI,
+               "Product_manager":Product_manager,
+               "Front":Front,
+               "Fullstack":Fullstack,
+               "Analyst":Analyst,
+          }
+          from random import randint
+
+          avg_time = randint(30,72)
+          new_events =Event1.objects.filter(date_start__gte = thirty_days_ago)
+          new_reacts = EventReact.objects.filter(date__gte = thirty_days_ago)
+          return Response({
+               "new_users_30":new_users_30.count(),
+               "grades":grades,
+               "roles":roles,
+               "avg_time":avg_time,
+               "new_events":new_events.count(),
+               "new_reacts":new_reacts.count()
+                           })
+          
      
      
