@@ -36,6 +36,14 @@ class Profile(models.Model):
 		(MALE,'MALE'),
 		(FEMELE,'FEMELE'),
 	]
+	Junior = 'Junior'
+	Middle='Middle'
+	Senior='Senior'
+	GRAD_CHOICES = [
+		(Junior,'Junior'),
+		(Middle,'Middle'),
+		(Senior,'Senior'),
+	]
 	user = models.OneToOneField(User,on_delete=models.CASCADE)
 	avatar = models.ImageField(upload_to="media/avatars",default="../media/avatars/123.png",blank=True)
 	bio = models.CharField(max_length=1000,blank=True)
@@ -48,6 +56,7 @@ class Profile(models.Model):
 	bday=models.DateField(auto_now=False, auto_now_add=False,blank=True,default="2000-01-05")
 	is_proved = models.BooleanField(default=False)
 	admin = models.BooleanField(default=False)
+	grade = models.CharField(max_length=10,choices=GRAD_CHOICES,default=Junior)
 	city = models.CharField(max_length=50,default="Moskva")
 	tg = models.CharField(max_length=32,default="@bot")
 	email = models.EmailField(max_length = 254,default="")
@@ -96,6 +105,7 @@ class Event(models.Model):
 	date = models.DateField(auto_now=False, auto_now_add=False,default=None)
 	count = models.PositiveIntegerField(default=0)
 	is_finished = models.BooleanField(default=False)
+	views_count = models.PositiveIntegerField(default=0)
 	event_type = models.CharField(max_length=12,choices=EVENT_TYPE_CHOICES,default="123")
 	def __str__(self) -> str:
 		return str(self.title)

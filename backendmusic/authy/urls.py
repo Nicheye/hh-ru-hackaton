@@ -9,5 +9,6 @@ urlpatterns = [
 	path('users/',UsersView.as_view()),
 	path('users/<int:pk>/', UsersView.as_view()),
 	path('events/', EventApi.as_view()),
+	path('events/<int:pk>/', EventApi.as_view()),
 	path('event/<int:pk>/register',EventRegister.as_view())
 ]

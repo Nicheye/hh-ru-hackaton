@@ -107,32 +107,41 @@ class EmailSender(APIView,AdminPermissionMixin):
 
 class EventApi(APIView):
      permission_classes = [permissions.IsAuthenticatedOrReadOnly]
-     def get(self,request):
-          events =Event1.objects.filter(is_finished=False).all()
-          
+     def get(self,request,*args,**kwargs):
+          pk = kwargs.get("pk", None)
+          if pk:
+               event = get_object_or_404(Event1,id=pk)
+               event.views_count+=1
+               event.save()
+               serializer = EventSerializer(event).data
+               return Response({"events":serializer})
 
-          for event in events:
-               from datetime import datetime, date
-               import pytz
-               dt = datetime.now()
-               if event.date>datetime.date(dt):
-                    pass
-               else:
-                    event.is_finished=True
-                    event.save()
-          if request.user.is_authenticated:
-               try:
-                    myevents = InEvent.objects.filter(user=request.user)
-                    from random import randint
-                    for myevent in myevents:
-                         if myevent.event.is_finished ==True:
-                              myevent.place = randint(1,int(myevent.event.count))
-                              myevent.save()
+          else:
+               events =Event1.objects.filter(is_finished=False).all()
                
-               except:
-                    pass
-          serializer = EventSerializer(events,many=True).data
-          return Response({"events":serializer})
+
+               for event in events:
+                    from datetime import datetime, date
+                    import pytz
+                    dt = datetime.now()
+                    if event.date>datetime.date(dt):
+                         pass
+                    else:
+                         event.is_finished=True
+                         event.save()
+               if request.user.is_authenticated:
+                    try:
+                         myevents = InEvent.objects.filter(user=request.user)
+                         from random import randint
+                         for myevent in myevents:
+                              if myevent.event.is_finished ==True:
+                                   myevent.place = randint(1,int(myevent.event.count))
+                                   myevent.save()
+                    
+                    except:
+                         pass
+               serializer = EventSerializer(events,many=True).data
+               return Response({"events":serializer})
 
 
      def post(self,request):

@@ -12,9 +12,10 @@ class UserSerializer(serializers.ModelSerializer):
 	city = serializers.SerializerMethodField()
 	phone = serializers.SerializerMethodField()
 	events_count = serializers.SerializerMethodField()
+	grade = serializers.SerializerMethodField()
 	class Meta:
 		model = User
-		fields =['id','username','password','email','name','second','father','city','ava','role','sex','phone','age','events_count']
+		fields =['id','username','password','email','name','second','father','city','ava','role','sex','phone','age','events_count','grade']
 		extra_kwargs = {
 			'password':{'write_only':True}
 		}
@@ -22,6 +23,8 @@ class UserSerializer(serializers.ModelSerializer):
 		return "http://127.0.0.1:8000"+obj.profile.avatar.url
 	def get_role(self,obj):
 		return obj.profile.role
+	def get_grade(self,obj):
+		return obj.profile.grade
 	def get_phone(self,obj):
 		return str(obj.profile.phone)
 	def get_sex(self,obj):
@@ -76,7 +79,7 @@ class EventSerializer(serializers.ModelSerializer):
 	img = serializers.SerializerMethodField()
 	class Meta:
 		model = Event
-		fields =('title','description','img','tags','date','count')
+		fields =('title','description','img','tags','date','count','views_count')
 	def get_img(self,obj):
 		return "http://127.0.0.1:8000"+obj.image.url
 
