@@ -60,6 +60,7 @@ class Profile(models.Model):
 	city = models.CharField(max_length=50,default="Moskva")
 	tg = models.CharField(max_length=32,default="@bot")
 	email = models.EmailField(max_length = 254,default="")
+	#сде
 	def __str__(self) -> str:
 		return str(self.user)+"|"+str(self.id)
 	def create_user_profile(sender,instance,created,**kwargs):

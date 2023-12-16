@@ -13,9 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
 	phone = serializers.SerializerMethodField()
 	events_count = serializers.SerializerMethodField()
 	grade = serializers.SerializerMethodField()
+	tg = serializers.SerializerMethodField()
 	class Meta:
 		model = User
-		fields =['id','username','password','email','name','second','father','city','ava','role','sex','phone','age','events_count','grade']
+		fields =['id','username','password','email','name','second','father','city','ava','role','sex','phone','age','events_count','grade','tg']
 		extra_kwargs = {
 			'password':{'write_only':True}
 		}
@@ -27,6 +28,8 @@ class UserSerializer(serializers.ModelSerializer):
 		return obj.profile.grade
 	def get_phone(self,obj):
 		return str(obj.profile.phone)
+	def get_tg(self,obj):
+		return obj.profile.tg
 	def get_sex(self,obj):
 		return obj.profile.sex
 	def get_name(self,obj):

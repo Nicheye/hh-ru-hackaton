@@ -72,10 +72,11 @@ class UsersView(APIView):
                else:
                     user = User.objects.get(id=pk)
                     profik = Profile.objects.get(user=user)
-                    serializer = ProfileSerializer(profik).data
+                    serializer = UserSerializer(user).data
                     return Response({"user": serializer})
           else:
                return Response({"message":"you ve not enough rights for this"})
+     
      def put(self, request, *args, **kwargs):
         
         pk = kwargs.get("pk", None)
@@ -99,11 +100,7 @@ class UsersView(APIView):
         else:
              return Response({"message": "it aint your profile u cant change it"})
         
-class EmailSender(APIView,AdminPermissionMixin):
-     def get(self,request):
-          pass
-     def post(self,request):
-          pass
+
 
 class EventApi(APIView):
      permission_classes = [permissions.IsAuthenticatedOrReadOnly]
@@ -176,3 +173,55 @@ class EventRegister(APIView):
              
         else:
              return Response({"message":"u r not proved"})
+
+class EmailSender(APIView,AdminPermissionMixin):
+     permission_classes = [IsAuthenticated]
+     def get(self,request):
+          pass
+     
+     def post(self,request,*args,**kwargs):
+          pk = kwargs.get("pk", None)
+          if pk:
+               if pk=="all":
+                    profiles = Profile.objects.all()
+                    message = request.data['message']
+                    
+                    title = request.data['title']
+                    for profile in profiles:
+                         send_mail(
+                         title,
+                         message,
+                         'settings.EMAIL_HOST_USER',
+                         [profile.email],
+                         fail_silently=False
+                    )
+                    return Response({"message":request.data})
+               else:
+
+                    profiles = Profile.objects.filter(role=pk)
+                    message = request.data['message']
+                    
+                    title = request.data['title']
+                    for profile in profiles:
+                         send_mail(
+                         title,
+                         message,
+                         'settings.EMAIL_HOST_USER',
+                         [profile.email],
+                         fail_silently=False
+                    )
+                    return Response({"message":request.data})
+          else:
+
+               message = request.data['message']
+               email = request.data['email']
+               title = request.data['title']
+               send_mail(
+                    title,
+                    message,
+                    'settings.EMAIL_HOST_USER',
+                    [email],
+                    fail_silently=False
+               )
+               return Response({"message":request.data})
+
