@@ -440,7 +440,18 @@ class AnalyticsData(APIView):
           fr=0
           fs=0
           anal=0
+
+          beginner=0
+          expirienced=0
+          fan=0
+
           for profile in all_users:
+               if profile.status=='beginner':
+                    beginner+=1
+               if profile.status=='expirienced':
+                    expirienced+=1
+               if profile.status=='fan':
+                    fan+=1
                if profile.role =='BACKEND':
                     back+=1
 
@@ -514,7 +525,11 @@ class AnalyticsData(APIView):
                "analysts":str(round(anal/count_users*100))+"%",
 
           }
-
+          status_tags={
+               "begginer_users":str(round(beginner/count_users*100))+"%",
+               "expirienced_users":str(round(expirienced/count_users*100))+"%",
+               "fan":str(round(fan/count_users*100))+"%",
+          }
           sex_tags = {
                'Males':str(round(males/count_users*100))+"%",
                'females':str(round(females/count_users*100))+"%",
@@ -576,6 +591,7 @@ class AnalyticsData(APIView):
                "sended_msg":sended_msg,
                "responded_msg":responded_msg,
                "conversion_msg":conversion_msg,
+               "statuses":status_tags
           })
 
 

@@ -57,7 +57,16 @@ class Profile(models.Model):
 	bday=models.DateField(auto_now=False, auto_now_add=False,blank=True,default="2000-01-05")
 	is_proved = models.BooleanField(default=False)
 	age = models.PositiveIntegerField(default=0)
-	
+	beginner = 'beginner'
+	expirienced='expirienced'
+	fan='fan'
+	STATUS_CHOICES = [
+		(beginner,'beginner'),
+		(expirienced,'expirienced'),
+		(fan,'fan'),
+	]
+	status = models.CharField(max_length=15,choices=STATUS_CHOICES,default=beginner)
+	city = models.CharField(max_length=50,default="Moskva")
 	admin = models.BooleanField(default=False)
 	
 	grade = models.CharField(max_length=10,choices=GRAD_CHOICES,default=Junior)
@@ -158,6 +167,7 @@ class EventReact(models.Model):
 		(Good,'Good'),
 		(Bad,'Bad'),
 	]
+	user = models.ForeignKey(User,on_delete=models.CASCADE,default=1)
 	faker =Faker()
 	event = models.ForeignKey(Event,on_delete=models.CASCADE)
 	react = models.CharField(max_length=5,choices=REACT_CHOICES,default=Good)

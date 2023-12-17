@@ -17,6 +17,6 @@ urlpatterns = [
 	path('filtering',FilterApi.as_view()),
 	path('maindata',BigDataApi.as_view()),
 	path('event_data/<int:pk>/', EventData.as_view()),
-	path('analdata/', AnalyticsData.as_view()),
+	path('analytdata/', AnalyticsData.as_view()),
 	
 ]
