@@ -198,3 +198,4 @@ CORS_ALLOW_HEADERS = (
     "x-csrftoken",
     "x-requested-with",
 )
+CSRF_TRUSTED_ORIGINS=["http://localhost:4200", "https://5f03-93-123-208-222.ngrok-free.app"]

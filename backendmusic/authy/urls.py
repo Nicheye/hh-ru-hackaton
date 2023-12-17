@@ -15,6 +15,8 @@ urlpatterns = [
 	path('emailsend/',EmailSender.as_view()),#для админа рассылка по имейоу
 	path('emailsend/<slug:pk>/',EmailSender.as_view()),
 	path('filtering',FilterApi.as_view()),
-	path('maindata',BigDataApi.as_view())
+	path('maindata',BigDataApi.as_view()),
+	path('event_data/<int:pk>/', EventData.as_view()),
+	path('analdata/', AnalyticsData.as_view()),
 	
 ]

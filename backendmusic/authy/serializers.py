@@ -86,16 +86,37 @@ class ProfileSerializer(serializers.ModelSerializer):
 			return instance
 	
 class UserDataSeriailizer(serializers.ModelSerializer):
-	
+	age = serializers.SerializerMethodField()
 	wins = serializers.SerializerMethodField()
+	winrate = serializers.SerializerMethodField()
+	time = serializers.SerializerMethodField()
+	teams = serializers.SerializerMethodField()
 	class Meta:
 		model = Profile
-		fields =('avatar','bio','role','sex','name','second','father','phone','bday','age','city','wins','events_count')
-	
+		fields =('avatar','bio','role','sex','name','second','father','phone','bday','age','city','events_count','wins','winrate','time','teams')
+	def get_age(self,obj):
+		from datetime import datetime
+		from dateutil import relativedelta
+		delte=relativedelta.relativedelta(datetime.now(),obj.bday)
+		return int(delte.years)
 	def get_wins(self,obj):
-		obj.prizes_count =InEvent.objects.filter(participant=obj,place=1).count()
+
+		wins = InEvent.objects.filter(participant=obj.user,place=1).count()
+		obj.wins = wins
 		obj.save()
-		return InEvent.objects.filter(participant=obj,place=1).count
+		return wins
+	def get_winrate(self,obj):
+		return str(obj.wins/obj.events_count * 100) + "%"
+	def get_time(self,obj):
+		from random import randint
+		return str(randint(150,700))+" min"
+	def get_teams(self,obj):
+		from .models import Team,TeamPart
+		teams = TeamPart.objects.filter(user=obj.user)
+		titles = []
+		for team in teams:
+			titles.append(team.team.title)
+		return titles
 
 from .models import EventTag
 class EventSerializer(serializers.ModelSerializer):
@@ -113,7 +134,29 @@ class EventSerializer(serializers.ModelSerializer):
 			tags.append(opium.tags)
 		return tags
 
-
+class EventDataSerializer(serializers.ModelSerializer):
+	img = serializers.SerializerMethodField()
+	tags= serializers.SerializerMethodField()
+	spents = serializers.SerializerMethodField()
+	redirects =serializers.SerializerMethodField()
+	registers = serializers.SerializerMethodField()
+	class Meta:
+		model = Event
+		fields =('title','description','img','tags','date','registers','views_count','tags','event_money','spents','redirects')
+	def get_img(self,obj):
+		return "http://127.0.0.1:8000"+obj.image.url
+	def get_registers(self,obj):
+		return obj.count
+	def get_spents(self,obj):
+		return obj.rent+obj.merch+obj.keytering
+	def get_redirects(self,obj):
+		return round(obj.views_count*1.25)
+	def get_tags(self,obj):
+		a = EventTag.objects.filter(event=obj)
+		tags=[]
+		for opium in a:
+			tags.append(opium.tags)
+		return tags
 
 	
 	

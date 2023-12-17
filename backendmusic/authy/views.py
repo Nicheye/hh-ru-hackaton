@@ -19,8 +19,8 @@ from django.core.mail import send_mail
 from .models import EventReact
 from .models import Redirection
 def check(request):
-     user = request.user
-     if user.is_authenticated:
+     users = User.objects.all()
+     for user in users:
           if user.profile.email =="":
                user.profile.email =user.email
                user.save()
@@ -86,8 +86,8 @@ class UsersView(APIView):
                else:
                     user = User.objects.get(id=pk)
                     profik = Profile.objects.get(user=user)
-
-                    serializer = UserSerializer(user).data
+                    from .serializers import UserDataSeriailizer
+                    serializer = UserDataSeriailizer(profik).data
                     return Response({"user": serializer})
           else:
                return Response({"message":"you ve not enough rights for this"})
@@ -154,7 +154,7 @@ class EventApi(APIView):
                return Response({"events":serializer})
 
           else:
-               events =Event1.objects.filter(is_finished=False).all()
+               events =Event1.objects.filter(is_finished=False).order_by('-id').all()
                
 
                for event in events:
@@ -345,4 +345,237 @@ class BigDataApi(APIView):
                            })
           
      
-     
+class EventData(APIView):
+     def get(self,request,*args,**kwargs):
+          pk = kwargs.get("pk", None)
+          event= Event1.objects.get(id=pk)
+          from .serializers import EventDataSerializer
+          event_ser =EventDataSerializer(event).data
+          return Response({"event":event_ser})
+
+class AnalyticsData(APIView):
+     def get(self,request,*argsm,**kwargs):
+          check(request)
+          from random import randint
+          avg_time = randint(50,120)
+          all_time = avg_time*(randint(5,10))
+          last_24hours = randint(30,70)
+          five_days_ago = datetime.datetime.now() - timedelta(days=30)
+          new_reacts = EventReact.objects.filter(date__gte = five_days_ago)
+          all=0
+          good=0
+          bad=0
+          for react in new_reacts:
+               all+=1
+               if react.react =='Good':
+                    good+=1
+               if react.react =='Bad':
+                    bad+=1     
+          loyalty = good/all*100
+          all_events = Event1.objects.all()
+          sum =0
+          budget=0
+          BACKEND=0
+          UI =0
+          Product_manager=0
+          Front=0
+          Fullstack=0
+          Analyst=0
+          all_events_count=all_events.count()
+          from .models import EventTag
+          for event in all_events:
+               sum+=event.merch+event.rent+event.keytering
+               budget+=event.event_money
+               tags = EventTag.objects.filter(event=event)
+               if tags.count()>0:
+                    for tag in tags:
+                         if tag=='BACKEND':
+                              BACKEND+=1
+                         if tag=='UI':
+                              UI+=1    
+                         if tag=='Product_manager':
+                              Product_manager+=1   
+                         if tag=='Front':
+                              Front+=1   
+                         if tag=='Fullstack':
+                              Fullstack+=1     
+                         if tag=='Analyst':
+                              Analyst+=1 
+          doneningevents = sum/budget *100 
+          tags = {
+               "BACKEND":BACKEND/all_events_count *100,
+               "UI":UI/all_events_count *100,
+               "Product_manager":Product_manager/all_events_count *100,
+               "Front":Front/all_events_count *100,
+               "Fullstack":Fullstack/all_events_count *100,
+               "Analyst":Analyst/all_events_count *100,
+          }
+          all_users = Profile.objects.all()
+          count_users =all_users.count()
+          males=0
+          females=0
+          
+          four_seven=0
+          eight_twenty=0
+          twenty_twhirsty=0
+          twhirsty_fourty=0
+          ff_54=0
+          more=0
+
+          Moskva=0
+          Piter=0
+          Novosib=0
+          Ekb=0
+          Kazan=0
+          Others=0
+
+          Jun=0
+          Mid=0
+          Sen=0
+
+
+          back=0
+          ui=0
+          pm=0
+          fr=0
+          fs=0
+          anal=0
+          for profile in all_users:
+               if profile.role =='BACKEND':
+                    back+=1
+
+               if profile.role =='UI':
+                    ui+=1
+
+               if profile.role =='Product manager':
+                    pm+=1
+
+               if profile.role =='Frontend':
+                    fr+=1
+               if profile.role =='Fullstack':
+                    fs+=1
+               if profile.role =='Analyst':
+                    anal+=1
+
+
+               if profile.sex =='MALE':
+                    males+=1
+               else:
+                    females+=1
+               if profile.age>=14 and profile.age<=17:
+                    four_seven+=1
+               if profile.age>=18 and profile.age<=24:
+                    eight_twenty+=1
+               if profile.age>=25 and profile.age<=34:
+                    twenty_twhirsty+=1
+               if profile.age>=35 and profile.age<=44:
+                    twhirsty_fourty+=1
+               if profile.age>=45 and profile.age<=54:
+                    ff_54+=1
+               if profile.age>54:
+                    more+=1
+               if profile.city =='Moskva':
+                    Moskva+=1
+               if profile.city =='spb':
+                    Piter+=1  
+               if profile.city =='Novosib':
+                    Novosib+=1
+               if profile.city =='Ekb':
+                    Ekb+=1
+               if profile.city =='Kazan':
+                    Kazan+=1
+               if profile.city !='spb' and profile.city !='Moskva' and profile.city !='Novosib' and profile.city !='Ekb' and profile.city !='Kazan':
+
+                    Others+=1
+               if profile.grade =='Junior':
+                    Jun+=1
+               if profile.grade =='Middle':
+                    Mid+=1
+               if profile.grade =='Senior':
+                    Sen+=1
+
+
+
+          age_tags={
+               '14_17':four_seven/count_users*100,
+               '18_24':eight_twenty/count_users*100,
+               '25_34':twenty_twhirsty/count_users*100,
+               '35_44':twhirsty_fourty/count_users*100,
+               '45_54':ff_54/count_users*100,
+               'more':more/count_users*100,
+          }
+
+          role_tags={
+               "backends":str(back/count_users*100)+"%",
+               "ui":str(ui/count_users*100)+"%",
+               "Product manager":str(pm/count_users*100)+"%",
+               "frontends":str(fr/count_users*100)+"%",
+               "fullstacks":str(fs/count_users*100)+"%",
+               "analysts":str(anal/count_users*100)+"%",
+
+          }
+
+          sex_tags = {
+               'Males':males/count_users*100,
+               'females':females/count_users*100,
+          }
+          
+          city_tags={
+               'Moscow':Moskva/count_users*100,
+               'Saint-P':Piter/count_users*100,
+               'Novosib':Novosib/count_users*100,
+               'Ekb':Ekb/count_users*100,
+               'Kazan':Kazan/count_users*100,
+               'others':Others/count_users*100,
+          }
+
+          grade_tags = {
+               'Juniors':Jun/count_users*100,
+               'Middle':Mid/count_users*100,
+               'Senior':Sen/count_users*100,
+          }
+          socials={
+               "vk":str(randint(10,30))+"%",
+               "tg":str(randint(20,40))+"%",
+               "others":str(randint(15,30))+"%",
+          }
+
+
+          sended_sms = randint(100,700)
+          responded_sms = randint(100,300)
+          conversion_sms=str(randint(10,60))+"%"
+          sended_email = randint(600,1400)
+          responded_email = randint(250,404)
+          conversion_email=str(randint(17,70))+"%"
+          sended_msg = randint(350,600)
+          responded_msg = randint(20,300)
+          conversion_msg=str(randint(5,60))+"%"
+          return Response({
+               "avg_time":avg_time,
+               "all_time":all_time,
+               "last_24hours":last_24hours,
+               'loyalty':str(loyalty)+"%",
+               'all_events':all_events_count,
+               "all_spends":sum,
+               "budget":budget,
+               'doneningevents':str(round(doneningevents))+"%",
+               "event_tags":tags,
+               "count_users":count_users,
+               "sex_tags":sex_tags,
+               "age_tags":age_tags,
+               "city_tags":city_tags,
+               "grade_tags":grade_tags,
+               "role_tags":role_tags,
+               "socials":socials,
+               "sended_sms":sended_sms,
+               "responded_sms":responded_sms,
+               "conversion_sms":conversion_sms,
+               "sended_email":sended_email,
+               "responded_email":responded_email,
+               "conversion_email":conversion_email,
+               "sended_msg":sended_msg,
+               "responded_msg":responded_msg,
+               "conversion_msg":conversion_msg,
+          })
+
+

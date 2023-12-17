@@ -64,6 +64,7 @@ class Profile(models.Model):
 	city = models.CharField(max_length=50,default="Moskva")
 	tg = models.CharField(max_length=32,default="@bot")
 	email = models.EmailField(max_length = 254,default="")
+	wins = models.PositiveIntegerField(default=0)
 	#сде
 	def __str__(self) -> str:
 		return str(self.user)+"|"+str(self.id)
@@ -102,7 +103,7 @@ class Event(models.Model):
 		(Meetup,'Meetup'),
 		
 	]
-	
+	from random import randint
 	title = models.CharField(max_length=100)
 	description = models.CharField(max_length=700)
 	image = models.ImageField(upload_to="media/avatars",default="../media/avatars/123.png",blank=True)
@@ -110,6 +111,10 @@ class Event(models.Model):
 	date_start =models.DateField(auto_now=False, auto_now_add=False,default=faker.date_this_month())
 	date = models.DateField(auto_now=False, auto_now_add=False,default=None)
 	count = models.PositiveIntegerField(default=0)
+	event_money = randint(10000,50000)
+	rent = randint(10000,50000)
+	merch = randint(10000,50000)
+	keytering = randint(10000,50000)
 	is_finished = models.BooleanField(default=False)
 	views_count = models.PositiveIntegerField(default=0)
 	event_type = models.CharField(max_length=12,choices=EVENT_TYPE_CHOICES,default="123")
@@ -137,9 +142,13 @@ class EventTag(models.Model):
 	def __str__(self) -> str:
 		return str(self.tags + "  "+ self.event.title)
 class InEvent(models.Model):
+	
 	place = models.PositiveIntegerField(default=0)
 	participant = models.ForeignKey(User,on_delete=models.CASCADE)
 	event = models.ForeignKey(Event,on_delete=models.CASCADE)
+	
+
+
 	def __str__(self) -> str:
 		return str(self.participant) + " | "+str(self.event)
 class EventReact(models.Model):
@@ -161,3 +170,13 @@ class Redirection(models.Model):
 	tgcounter = models.PositiveIntegerField(default=0)
 	vkcounter = models.PositiveIntegerField(default=0)
 	foreign = models.PositiveIntegerField(default=0)
+
+class Team(models.Model):
+	title = models.CharField(max_length=20)
+	def __str__(self) -> str:
+		return self.title
+class TeamPart(models.Model):
+	user = models.ForeignKey(User,on_delete=models.CASCADE)
+	team = models.ForeignKey(Team,on_delete=models.CASCADE)
+	def __str__(self) -> str:
+		return self.team.title + "  "+ self.user.username
