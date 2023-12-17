@@ -403,12 +403,12 @@ class AnalyticsData(APIView):
                               Analyst+=1 
           doneningevents = sum/budget *100 
           tags = {
-               "BACKEND":BACKEND/all_events_count *100,
-               "UI":UI/all_events_count *100,
-               "Product_manager":Product_manager/all_events_count *100,
-               "Front":Front/all_events_count *100,
-               "Fullstack":Fullstack/all_events_count *100,
-               "Analyst":Analyst/all_events_count *100,
+               "BACKEND":str(round(BACKEND/all_events_count *100))+"%",
+               "UI":str(round(UI/all_events_count*100)) +"%" ,
+               "Product_manager":str(round(Product_manager/all_events_count *100)) +"%",
+               "Front":str(round(Front/all_events_count *100))+"%",
+               "Fullstack":str(round(Fullstack/all_events_count *100))+"%",
+               "Analyst":str(round(Analyst/all_events_count *100))+"%",
           }
           all_users = Profile.objects.all()
           count_users =all_users.count()
@@ -497,42 +497,42 @@ class AnalyticsData(APIView):
 
 
           age_tags={
-               '14_17':four_seven/count_users*100,
-               '18_24':eight_twenty/count_users*100,
-               '25_34':twenty_twhirsty/count_users*100,
-               '35_44':twhirsty_fourty/count_users*100,
-               '45_54':ff_54/count_users*100,
-               'more':more/count_users*100,
+               '14_17':str(round(four_seven/count_users*100))+"%",
+               '18_24':str(round(eight_twenty/count_users*100))+"%",
+               '25_34':str(round(twenty_twhirsty/count_users*100))+"%",
+               '35_44':str(round(twhirsty_fourty/count_users*100))+"%",
+               '45_54':str(round(ff_54/count_users*100))+"%",
+               'more':str(round(more/count_users*100))+"%",
           }
 
           role_tags={
-               "backends":str(back/count_users*100)+"%",
-               "ui":str(ui/count_users*100)+"%",
-               "Product manager":str(pm/count_users*100)+"%",
-               "frontends":str(fr/count_users*100)+"%",
-               "fullstacks":str(fs/count_users*100)+"%",
-               "analysts":str(anal/count_users*100)+"%",
+               "backends":str(round(back/count_users*100))+"%",
+               "ui":str(round(ui/count_users*100))+"%",
+               "Product manager":str(round(pm/count_users*100))+"%",
+               "frontends":str(round(fr/count_users*100))+"%",
+               "fullstacks":str(round(fs/count_users*100))+"%",
+               "analysts":str(round(anal/count_users*100))+"%",
 
           }
 
           sex_tags = {
-               'Males':males/count_users*100,
-               'females':females/count_users*100,
+               'Males':str(round(males/count_users*100))+"%",
+               'females':str(round(females/count_users*100))+"%",
           }
           
           city_tags={
-               'Moscow':Moskva/count_users*100,
-               'Saint-P':Piter/count_users*100,
-               'Novosib':Novosib/count_users*100,
-               'Ekb':Ekb/count_users*100,
-               'Kazan':Kazan/count_users*100,
-               'others':Others/count_users*100,
+               'Moscow':str(round(Moskva/count_users*100))+"%",
+               'Saint-P':str(round(Piter/count_users*100))+"%",
+               'Novosib':str(round(Novosib/count_users*100))+"%",
+               'Ekb':str(round(Ekb/count_users*100))+"%",
+               'Kazan':str(round(Kazan/count_users*100))+"%",
+               'others':str(round(Others/count_users*100))+"%",
           }
 
           grade_tags = {
-               'Juniors':Jun/count_users*100,
-               'Middle':Mid/count_users*100,
-               'Senior':Sen/count_users*100,
+               'Juniors':str(round(Jun/count_users*100))+"%",
+               'Middle':str(round(Mid/count_users*100))+"%",
+               'Senior':str(round(Sen/count_users*100))+"%",
           }
           socials={
                "vk":str(randint(10,30))+"%",
@@ -554,7 +554,7 @@ class AnalyticsData(APIView):
                "avg_time":avg_time,
                "all_time":all_time,
                "last_24hours":last_24hours,
-               'loyalty':str(loyalty)+"%",
+               'loyalty':str(round(loyalty))+"%",
                'all_events':all_events_count,
                "all_spends":sum,
                "budget":budget,
