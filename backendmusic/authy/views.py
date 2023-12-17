@@ -323,12 +323,12 @@ class BigDataApi(APIView):
                "Senior":Senior,
           }
           roles = {
-               "BACKEND":BACKEND,
-               "UI":UI,
-               "Product_manager":Product_manager,
-               "Front":Front,
-               "Fullstack":Fullstack,
-               "Analyst":Analyst,
+               "backend":BACKEND,
+               "ux_ui":UI,
+               "product-manager":Product_manager,
+               "frontend":Front,
+               "fullstack":Fullstack,
+               "analyst":Analyst,
           }
           from random import randint
 
